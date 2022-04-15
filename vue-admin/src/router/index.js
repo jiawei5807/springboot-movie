@@ -51,7 +51,10 @@ const routes = [
                 path: '/order/exception',
                 component: () => import("@/views/order/Exception")
             },
-
+            {
+                path: '/order/statistics',
+                component: () => import("@/views/order/Statistics")
+            },
             {
                 path: '/worker/list',
                 component: () => import("@/views/worker/List")

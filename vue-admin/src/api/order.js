@@ -44,3 +44,11 @@ export function FindUserOrder(data) {
         method: 'get'
     })
 }
+
+export function GetOrderStatistics(data) {
+    return service({
+        url: '/order/statistics/',
+        method: 'get',
+        data: data
+    })
+}
