@@ -7,6 +7,7 @@
       <el-date-picker
           v-model="value1"
           type="daterange"
+          :picker-options="pickerOptions"
           range-separator="至"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
@@ -29,6 +30,14 @@ export default {
   name: "Statistics",
   data() {
     return {
+      pickerOptions: {
+        //设置只能选以后的日期
+        disabledDate(time) {
+          return (
+              time.getTime() > new Date().getTime()
+          );
+        }
+      },
       value1: '',
       option: {
         xAxis: {
@@ -58,8 +67,8 @@ export default {
       if (typeof (startDate) !== "undefined" && typeof (endDate) !== "undefined") {
         GetOrderStatistics(data).then(res => {
           if (res.success) {
-            this.option.xAxis.data = res.data.map.X;
-            this.option.series[0].data = res.data.map.Y;
+            this.option.xAxis.data = res.data.X;
+            this.option.series[0].data = res.data.Y;
             this.$message.success("统计结果汇总成功！")
           }else {
             this.$message.error("请重新选择日期！");
