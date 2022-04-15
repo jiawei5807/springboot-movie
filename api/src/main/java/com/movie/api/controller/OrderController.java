@@ -6,10 +6,16 @@ import com.movie.api.model.vo.OrderVO;
 import com.movie.api.service.OrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.SneakyThrows;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.xml.crypto.Data;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Api(tags = "订单接口")
@@ -23,6 +29,17 @@ public class OrderController {
     @ApiOperation(value = "创建订单")
     public void save(@RequestBody Cart cart) throws Exception {
         orderService.create(cart);
+    }
+
+    @GetMapping("/statistics/{startDate}/{endDate}")
+    public Map<String, List<Object>> statistics(@PathVariable("startDate") String startDate,@PathVariable("endDate") String endDate) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date start = sdf.parse(startDate);
+        Date end = sdf.parse(endDate);
+        Map<String, List<Object>> statistics = orderService.statistics(start, end);
+        return statistics;
+
+
     }
 
     @GetMapping("")

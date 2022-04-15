@@ -17,9 +17,9 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 @CacheConfig(cacheNames = "order")
@@ -42,7 +42,9 @@ public class OrderServiceImpl implements OrderService {
         List<Integer> seats = arrangementService.getSeatsHaveSelected(cart.getAid());
         String[] split = cart.getSeats().split("号");
         for (String s : split) {
-            if (seats.contains(Integer.parseInt(s))) throw new Exception("影片在购物车中躺了太长时间了，座位已被其他用户预订并支付了");
+            if (seats.contains(Integer.parseInt(s))) {
+                throw new Exception("影片在购物车中躺了太长时间了，座位已被其他用户预订并支付了");
+            }
         }
         Order order = new Order();
         //生成订单id
@@ -56,7 +58,9 @@ public class OrderServiceImpl implements OrderService {
         //写入座位信息
         order.setStatus(cart.getStatus());
         order.setSeats(cart.getSeats());
-        if (cart.getStatus() == 2) order.setPayAt(DataTimeUtil.getNowTimeString());
+        if (cart.getStatus() == 2) {
+            order.setPayAt(DataTimeUtil.getNowTimeString());
+        }
         order.setPrice(cart.getPrice());
         order.setCreateAt(DataTimeUtil.getNowTimeString());
         orderMapper.insert(order);
@@ -71,7 +75,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order pay(String id) throws Exception {
         Order order = orderMapper.selectById(id);
-        if (order == null) throw new Exception("不存在的订单id");
+        if (order == null) {
+            throw new Exception("不存在的订单id");
+        }
 
         if (DataTimeUtil.parseTimeStamp(order.getCreateAt()) + OrderStatus.EXPIRATION_TIME
                 < System.currentTimeMillis()) {
@@ -101,6 +107,32 @@ public class OrderServiceImpl implements OrderService {
         QueryWrapper<Order> wrapper = new QueryWrapper<>();
         wrapper.in("uid", uid);
         return findByWrapper(wrapper);
+    }
+
+    @Override
+    public Map<String, List<Object>> statistics(Date start, Date end) {
+        List<Order> statistics = orderMapper.statistics();
+        DateFormat dateFormat = new SimpleDateFormat();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Map<String, List<Object>> map = new HashMap<>();
+        map.put("X", new ArrayList<>());
+        map.put("Y", new ArrayList<>());
+        for (Long i = start.getTime(); i < end.getTime() + 86400000L; i += 86400000L) {
+            List<Object> x = map.get("X");
+            String format = sdf.format(i);
+            x.add(format);
+        }
+
+        map.get("X").forEach(t -> {
+            Double count = 0.0;
+            for (Order s : statistics) {
+                if (t.equals(s.getPayAt().substring(0, 10))) {
+                    count += s.getPrice();
+                }
+            }
+            map.get("Y").add(count);
+        });
+        return map;
     }
 
     private List<OrderVO> findByWrapper(QueryWrapper<Order> wrapper) {
