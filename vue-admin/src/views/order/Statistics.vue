@@ -64,9 +64,11 @@ export default {
         startDate:startDate,
         endDate:endDate,
       }
+      console.log(data)
       if (typeof (startDate) !== "undefined" && typeof (endDate) !== "undefined") {
         GetOrderStatistics(data).then(res => {
           if (res.success) {
+            console.log(res.data)
             this.option.xAxis.data = res.data.X;
             this.option.series[0].data = res.data.Y;
             this.$message.success("统计结果汇总成功！")

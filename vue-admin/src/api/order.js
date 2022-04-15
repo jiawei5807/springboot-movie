@@ -40,14 +40,14 @@ export function ListOrderException() {
 
 export function FindUserOrder(data) {
     return service({
-        url: '/order/user/'+data,
+        url: '/order/user/' + data,
         method: 'get'
     })
 }
 
 export function GetOrderStatistics(data) {
     return service({
-        url: '/order/statistics/',
+        url: '/order/statistics/' + data.startDate + '/' + data.endDate,
         method: 'get',
         data: data
     })
